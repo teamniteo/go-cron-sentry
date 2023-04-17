@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	"net/url"
 	"os"
 
 	"github.com/imroc/req"
@@ -21,7 +22,8 @@ func (c *Cron) header() req.Header {
 }
 
 func (c *Cron) url(verb string) string {
-	return fmt.Sprintf("https://sentry.io/api/0/organizations/%s/monitors/%s/%s/", c.Team, c.Monitor, verb)
+	s, _ := url.JoinPath("https://sentry.io/api/0/organizations/", c.Team, "monitors", c.Monitor, verb)
+	return s
 }
 
 func NewMonitor(team, monitor string) Cron {
@@ -35,7 +37,7 @@ func NewMonitor(team, monitor string) Cron {
 }
 
 func (m *Cron) Start() error {
-	_, err := req.Post(m.url("checkins"), m.header(), started.json())
+	_, err := req.Post(m.url("/checkins/"), m.header(), started.json())
 	return err
 }
 
@@ -43,10 +45,10 @@ func (m *Cron) Stop() error {
 
 	// handle crash
 	if err := recover(); err != nil {
-		req.Put(m.url("latest"), m.header(), errored.json())
+		req.Put(m.url("/checkins/latest"), m.header(), errored.json())
 		return nil
 	}
 
-	_, err := req.Put(m.url("latest"), m.header(), finished.json())
+	_, err := req.Put(m.url("/checkins/latest"), m.header(), finished.json())
 	return err
 }
