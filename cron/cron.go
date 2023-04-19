@@ -2,6 +2,7 @@ package cron
 
 import (
 	"fmt"
+	"log"
 	"net/url"
 	"os"
 
@@ -37,18 +38,34 @@ func NewMonitor(team, monitor string) Cron {
 }
 
 func (m *Cron) Start() error {
-	_, err := req.Post(m.url("/checkins/"), m.header(), started.json())
+	url := m.url("/checkins/")
+	res, err := req.Post(url, m.header(), started.json())
+	log.Println(string(res.Bytes()))
+	if err != nil {
+		log.Println(err)
+	}
 	return err
 }
 
 func (m *Cron) Stop() error {
+	url := m.url("/checkins/latest/")
 
 	// handle crash
 	if err := recover(); err != nil {
-		req.Put(m.url("/checkins/latest"), m.header(), errored.json())
-		return nil
+
+		res, errReq := req.Put(url, m.header(), errored.json())
+		log.Println(string(res.Bytes()))
+		if errReq != nil {
+			log.Println(errReq)
+		}
+		return errReq
 	}
 
-	_, err := req.Put(m.url("/checkins/latest"), m.header(), finished.json())
-	return err
+	res, errReq := req.Put(url, m.header(), finished.json())
+	log.Println(string(res.Bytes()))
+	if errReq != nil {
+		log.Println(errReq)
+	}
+
+	return errReq
 }
