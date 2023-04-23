@@ -10,8 +10,8 @@ func TestCron_url(t *testing.T) {
 		verb   string
 		want   string
 	}{
-		{"started", Cron{"team", "dsn", "monitor"}, "/checkins/", "https://sentry.io/api/0/organizations/team/monitors/monitor/checkins/"},
-		{"ok", Cron{"team", "dsn", "monitor"}, "/checkins/latest/", "https://sentry.io/api/0/organizations/team/monitors/monitor/checkins/latest/"},
+		{"started", Cron{"team", "dsn", "monitor", ""}, "/checkins/", "https://sentry.io/api/0/organizations/team/monitors/monitor/checkins/"},
+		{"ok", Cron{"team", "dsn", "monitor", "latest"}, "/checkins/latest/", "https://sentry.io/api/0/organizations/team/monitors/monitor/checkins/latest/"},
 	}
 
 	for _, tt := range tests {
